@@ -8,7 +8,8 @@ import (
 )
 
 // Loads a server.crt and server.key file generated
-// using openssl. It looks in the root for these files
+// using the `gen-certs.sh`. It looks in the root directory
+// for server.crt and server.key file
 func LoadTlsConfig() (*tls.Config, error) {
 	certificate, err := tls.LoadX509KeyPair("server.crt", "server.key")
 	if err != nil {

@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"crypto/tls"
 	"errors"
 	"flag"
 	"fmt"
@@ -9,6 +10,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"persona/client"
 )
 
 var Address = "localhost"
@@ -21,6 +23,38 @@ func dialDefaultServer(port int) {
 		log.Fatalf("could not contact server because: %s\n", err)
 	}
 
+	manager(conn)
+}
+
+func DialTLSServer(port int) {
+	log.SetFlags(log.Lshortfile)
+	certPool, err := client.LoadServerCerts()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	config := &tls.Config{
+		MinVersion: tls.VersionTLS12,
+		RootCAs:    certPool,
+		InsecureSkipVerify: true,
+	}
+
+	addr := fmt.Sprintf(":%d", port)
+	conn, err := tls.Dial("tcp", addr, config)
+	if err != nil {
+		log.Fatalf("could not start tls client: \n %s\n", err)
+	}
+
+	log.Println("tls client successfully connected")
+	if err := conn.Handshake(); err != nil {
+		log.Fatalf("could not complete handshake:\n  %s\n", err)
+	}
+
+	log.Println("tls handshake with server was successfull!")
+	manager(conn)
+}
+
+func manager(conn net.Conn) {
 	stdinCh := make(chan string)
 	responseCh := make(chan string)
 	go collectInput(stdinCh)
@@ -73,9 +107,16 @@ func collectInput(out chan<- string) {
 func main() {
 	log.SetFlags(log.Lshortfile)
 	var port int
+	var secure bool
 	flag.IntVar(&port, "port", 4000, "Port to where the server, is listening")
+	flag.BoolVar(&secure, "secure", false, "Use TLS or default Server. Default is false")
 	flag.Parse()
 
-	log.Println("[WARN] contacting server without TLS configured!")
-	dialDefaultServer(port)
+	if secure {
+		log.Println("[INFO] starting server TLS configured!")
+		DialTLSServer(port)
+	} else {
+		log.Println("[WARN] contacting server without TLS configured!")
+		dialDefaultServer(port)
+	}
 }
