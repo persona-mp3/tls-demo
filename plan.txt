@@ -1,0 +1,27 @@
+So the OSI Model is really a simple thing,
+
+So lets have a scenario where Lalo and Saul are both 
+on Slack, and Lalo wants to send a video to Saul
+Now, Slack is web-based so it uses `HTTP` and `Websocket` Protocols
+
+Now this is the  `Application` layer, where it interacts closest to users	
+
+When Lalo clicks send, the video is then sent onto the `Presentation`
+Layer for encryption, formatting, translation and compression. And this 
+is where we'd be talking about TLS
+
+And when the data has being mingled, a Session is created. Well
+for brevity this is where connections are managed. For example 
+if Lalo's computer went off right now, and came back on, we wouldn't
+want to start again, but continue from where we stopped. But this 
+place is more complex than that, as it also handles HandShakes, multiplexing...
+
+Now that the session has been created, Lalos video that has been encrypted, compressed
+and formatted (hopefully) is taken down to the `Transmission` layer where 
+it's broken down into segmenets/packets. This could be done over TCP or UDP
+
+And then those packets are sent down to the Network Layer. This layer is resposible
+for tagging each packet with the Lalo's IP Address and Saul's IP Address
+
+And then down the drain it goes to the physical layer
+
