@@ -59,6 +59,10 @@ func startTLSServer(port int) {
 			continue
 		}
 
+		if _, err := conn.Write([]byte("Hello there client. Welcome to the TLS-Server!")); err != nil {
+			log.Printf("error writing to connection %s\n", err)
+			continue
+		}
 		go handleConnection(conn)
 	}
 }
@@ -66,10 +70,6 @@ func startTLSServer(port int) {
 func handleConnection(conn net.Conn) {
 	log.SetFlags(log.Lshortfile)
 	defer conn.Close()
-	if _, err := conn.Write([]byte("Hello there client!")); err != nil {
-		log.Printf("error writing to connection %s\n", err)
-		return
-	}
 
 	buffer := make([]byte, 1024)
 	for {
